@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Ride Sharing Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<h2>System Analytics</h2>
+
+<canvas id="chart" width="400" height="200"></canvas>
+
+<script>
+
+fetch("/analytics/")
+.then(res => res.json())
+.then(data => {
+
+    const ctx = document.getElementById('chart');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [
+                'Active Trips',
+                'Completed Trips',
+                'Passengers',
+                'Revenue'
+            ],
+            datasets: [{
+                label: 'System Stats',
+                data: [
+                    data.active_trips,
+                    data.completed_trips,
+                    data.passengers,
+                    data.revenue
+                ]
+            }]
+        }
+    });
+
+});
+
+</script>
+
+</body>
+</html>
