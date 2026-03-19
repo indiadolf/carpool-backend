@@ -9,16 +9,16 @@ def get_surge_multiplier():
 
     active_requests = CarpoolRequest.objects.count()
 
-    # 🔥 FIX: safer trip count
+    
     active_trips = Trip.objects.filter(active=True).count()
 
-    # no drivers → max surge
+  
     if active_trips == 0:
         return 2
 
     ratio = active_requests / max(active_trips, 1)
 
-    # smoother scaling
+   
     if ratio < 1:
         return 1
 
