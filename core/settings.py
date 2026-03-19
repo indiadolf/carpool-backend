@@ -6,10 +6,7 @@ SECRET_KEY = 'django-insecure-8#k*hf=p7qooohh-d7meni&91kzsl8rd1*4*9+%v(2e#uxzo=&
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]  # 🔥 allow local + deploy later
-
-
-# ===================== APPLICATIONS =====================
+ALLOWED_HOSTS = ["*"]  
 
 INSTALLED_APPS = [
 
@@ -20,12 +17,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # third-party
+    
     'rest_framework',
     'channels',
     'django_crontab',
 
-    # your apps
+    
     'users',
     'network',
     'trips',
@@ -34,7 +31,7 @@ INSTALLED_APPS = [
 ]
 
 
-# ===================== MIDDLEWARE =====================
+
 
 MIDDLEWARE = [
 
@@ -42,7 +39,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
 
-    # ⚠️ keep CSRF for now (safe)
+    
     'django.middleware.csrf.CsrfViewMiddleware',
 
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -52,12 +49,12 @@ MIDDLEWARE = [
 ]
 
 
-# ===================== URLS =====================
+
 
 ROOT_URLCONF = 'core.urls'
 
 
-# ===================== TEMPLATES =====================
+
 
 TEMPLATES = [
 
@@ -79,13 +76,12 @@ TEMPLATES = [
 ]
 
 
-# ===================== ASGI / WSGI =====================
+
 
 WSGI_APPLICATION = 'core.wsgi.application'
 ASGI_APPLICATION = 'core.asgi.application'
 
 
-# ===================== DATABASE =====================
 
 DATABASES = {
 
@@ -96,12 +92,12 @@ DATABASES = {
 }
 
 
-# ===================== AUTH =====================
+
 
 AUTH_USER_MODEL = 'users.User'
 
 
-# ===================== PASSWORD VALIDATION =====================
+
 
 AUTH_PASSWORD_VALIDATORS = [
 
@@ -113,7 +109,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# ===================== INTERNATIONAL =====================
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
@@ -122,17 +117,17 @@ USE_I18N = True
 USE_TZ = True
 
 
-# ===================== STATIC =====================
+
 
 STATIC_URL = 'static/'
 
-# ⚠️ FIX: avoid warning
+
 STATICFILES_DIRS = [
     BASE_DIR / "static"
 ] if (BASE_DIR / "static").exists() else []
 
 
-# ===================== CHANNELS =====================
+
 
 CHANNEL_LAYERS = {
     "default": {
@@ -141,7 +136,6 @@ CHANNEL_LAYERS = {
 }
 
 
-# ===================== REST FRAMEWORK =====================
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
@@ -150,7 +144,7 @@ REST_FRAMEWORK = {
 }
 
 
-# ===================== CRON JOBS =====================
+
 
 CRONJOBS = [
     ('*/1 * * * *', 'trips.tasks.simulate_trips'),
