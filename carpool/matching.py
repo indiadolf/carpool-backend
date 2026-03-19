@@ -1,10 +1,5 @@
 from trips.models import Trip
 from .models import Offer
-from routing.utils import shortest_path
-from .pricing import calculate_fare
-
-
-MAX_DETOUR = 3
 
 
 def match_request(request):
@@ -15,41 +10,36 @@ def match_request(request):
 
     for trip in trips:
 
-        route = trip.route
+        # capacity check
+        if trip.current_passengers >= trip.max_passengers:
+            continue
 
-        pickup = request.pickup_node.name
-        drop = request.drop_node.name
+        # route must contain pickup & drop
+        if request.pickup_node_id not in trip.route:
+            continue
 
-        # find nearest route node to pickup
-        for node in route:
+        if request.drop_node_id not in trip.route:
+            continue
 
-            try:
-                pickup_path = shortest_path(node, pickup)
+        # pickup must be ahead of driver
+        pickup_index = trip.route.index(request.pickup_node_id)
 
-                drop_path = shortest_path(pickup, drop)
+        if pickup_index < trip.current_index:
+            continue
 
-            except:
-                continue
+        # detour = distance from current position
+        detour = pickup_index - trip.current_index
 
-            if not pickup_path or not drop_path:
-                continue
+        # simple fare logic
+        fare = 50 + detour * 10
 
-            detour = len(pickup_path) + len(drop_path)
+        offer = Offer.objects.create(
+            trip=trip,
+            request=request,
+            detour=detour,
+            fare=fare
+        )
 
-            if detour > MAX_DETOUR:
-                continue
-
-            fare = calculate_fare(detour, trip.current_passengers + 1)
-
-            offer = Offer.objects.create(
-                trip=trip,
-                request=request,
-                detour=detour,
-                fare=fare
-            )
-
-            offers.append(offer)
-
-            break
+        offers.append(offer)
 
     return offers

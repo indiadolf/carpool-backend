@@ -1,17 +1,23 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
-<title>Road Network</title>
+<title>Carpool Network</title>
 
 <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
 
 <style>
 
-#cy {
-  width: 100%;
-  height: 700px;
-  border: 1px solid black;
+body{
+font-family: Arial;
+margin:20px;
+}
+
+#cy{
+width:100%;
+height:700px;
+border:1px solid #ccc;
 }
 
 </style>
@@ -20,7 +26,7 @@
 
 <body>
 
-<h2>Road Network Graph</h2>
+<h2>Carpool Road Network</h2>
 
 <div id="cy"></div>
 
@@ -28,75 +34,137 @@
 
 let cy;
 
+function loadGraph(){
+
 fetch("/network/")
 .then(res => res.json())
 .then(data => {
 
-    cy = cytoscape({
-        container: document.getElementById('cy'),
+    if(!cy){
 
-        elements: data,
+        cy = cytoscape({
 
-        style: [
-          {
-            selector: 'node',
-            style: {
-              'background-color': '#0074D9',
-              'label': 'data(label)',
-              'color': 'white'
+            container: document.getElementById('cy'),
+
+            elements: data,
+
+            style: [
+
+              {
+                selector: 'node',
+                style: {
+                  'label': 'data(label)',
+                  'color': 'white',
+
+                  'background-color': function(ele){
+
+                      let demand = ele.data("demand")
+
+                      if(demand >= 5) return "red"
+                      if(demand >= 3) return "orange"
+                      if(demand >= 1) return "yellow"
+
+                      return "#0074D9"
+                  }
+
+                }
+              },
+
+              {
+                selector: 'edge',
+                style:{
+                  'width':3,
+                  'line-color':'#ccc'
+                }
+              },
+
+              {
+                selector: '.route',
+                style:{
+                  'line-color':'green',
+                  'width':6
+                }
+              },
+
+              {
+                selector: '.driver',
+                style:{
+                  'background-color':'green',
+                  'label':'🚗',
+                  'font-size':20,
+                  'text-valign':'center',
+                  'text-halign':'center',
+                  'width':30,
+                  'height':30
+                }
+              },
+
+              {
+                selector: '.pickup',
+                style:{
+                  'background-color':'orange',
+                  'label':'🧍',
+                  'font-size':18,
+                  'text-valign':'center',
+                  'text-halign':'center',
+                  'width':25,
+                  'height':25
+                }
+              }
+
+            ],
+
+            layout:{
+                name:'cose'
             }
-          },
 
-          {
-            selector: '.driver',
-            style: {
-              'background-color': 'red'
-            }
-          },
+        });
 
-          {
-            selector: 'edge',
-            style: {
-              'width': 3,
-              'line-color': '#ccc'
-            }
-          }
-        ],
+    }
 
-        layout: {
-            name: 'cose'
-        }
+    else{
 
-    });
+        cy.elements().remove();
+        cy.add(data);
 
-    updateDrivers();
+    }
 
-    setInterval(updateDrivers, 3000);
+    animateDrivers();
 
 });
 
+}
 
-function updateDrivers(){
 
-    fetch("/drivers/")
-    .then(res => res.json())
-    .then(drivers => {
+function animateDrivers(){
 
-        cy.nodes().removeClass("driver");
+    cy.nodes('.driver').forEach(function(node){
 
-        drivers.forEach(d => {
+        let target = node.data('node');
 
-            let node = cy.getElementById(d.node);
+        if(target){
 
-            node.addClass("driver");
+            let targetNode = cy.getElementById(target);
 
-        });
+            node.animate({
+                position: targetNode.position()
+            },{
+                duration:2000
+            });
+
+        }
 
     });
 
 }
 
+
+loadGraph();
+
+setInterval(loadGraph,3000);
+
 </script>
 
 </body>
+
 </html>

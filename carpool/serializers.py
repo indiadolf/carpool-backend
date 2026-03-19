@@ -6,11 +6,27 @@ class RequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CarpoolRequest
-        fields = "__all__"
+        fields = [
+            "id",
+            "passenger",
+            "pickup_node",
+            "drop_node",
+            "created_at"
+        ]
 
 
 class OfferSerializer(serializers.ModelSerializer):
 
+    driver = serializers.CharField(source="trip.driver.username", read_only=True)
+
     class Meta:
         model = Offer
-        fields = "__all__"
+        fields = [
+            "id",
+            "driver",
+            "trip",
+            "request",
+            "detour",
+            "fare",
+            "accepted"
+        ]

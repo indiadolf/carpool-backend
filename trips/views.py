@@ -2,69 +2,102 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import Trip
-from .serializers import TripSerializer
-from .services import move_driver
+from users.models import User
+from network.models import Node
 
 
+# ✅ CREATE TRIP
 @api_view(["POST"])
 def create_trip(request):
+    try:
+        driver = User.objects.get(id=request.data.get("driver"))
+        start = Node.objects.get(id=request.data.get("start_node"))
+        end = Node.objects.get(id=request.data.get("end_node"))
 
-    serializer = TripSerializer(data=request.data)
+        # simple route (start → end)
+        route = [start.id, end.id]
 
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
+        trip = Trip.objects.create(
+            driver=driver,
+            start_node=start,
+            end_node=end,
+            route=route,
+            current_index=0,
+            max_passengers=request.data.get("max_passengers", 3),
+            current_passengers=0,
+            completed=False
+        )
 
-    return Response(serializer.errors)
-
-
-@api_view(["POST"])
-def move_trip(request, trip_id):
-
-    trip = Trip.objects.get(id=trip_id)
-
-    trip = move_driver(trip)
-
-    if trip.completed:
-        return Response({"status": "trip completed"})
-
-    return Response({
-        "status": "driver moved",
-        "current_node": trip.current_node.name,
-        "route_index": trip.route_index
-    })
-@api_view(["GET"])
-def driver_locations(request):
-
-    trips = Trip.objects.filter(completed=False)
-
-    data = []
-
-    for trip in trips:
-        data.append({
+        return Response({
+            "status": "trip_created",
             "trip_id": trip.id,
-            "node": trip.current_node.name
+            "route": route
         })
 
-    return Response(data)
+    except Exception as e:
+        return Response({"error": str(e)})
+
+
+# ✅ UPDATE DRIVER LOCATION (progress on route)
+@api_view(["POST"])
+def update_location(request, trip_id):
+    try:
+        trip = Trip.objects.get(id=trip_id)
+
+        if trip.current_index < len(trip.route) - 1:
+            trip.current_index += 1
+            trip.save()
+
+        return Response({
+            "status": "updated",
+            "current_node": trip.route[trip.current_index],
+            "current_index": trip.current_index
+        })
+
+    except Exception as e:
+        return Response({"error": str(e)})
+
+
+# ✅ VIEW ALL TRIPS (PS requirement)
 @api_view(["GET"])
-def analytics(request):
+def get_trips(request):
 
-    from .models import Trip
-    from carpool.models import Ride
-    from payments.models import Transaction
+    trips = Trip.objects.all().values()
 
-    active_trips = Trip.objects.filter(completed=False).count()
+    return Response(list(trips))
 
-    completed_trips = Trip.objects.filter(completed=True).count()
 
-    passengers = Ride.objects.count()
+# ✅ CANCEL TRIP (PS requirement)
+@api_view(["POST"])
+def cancel_trip(request, trip_id):
 
-    revenue = sum(t.amount for t in Transaction.objects.all())
+    try:
+        trip = Trip.objects.get(id=trip_id)
+    except Trip.DoesNotExist:
+        return Response({"error": "Trip not found"})
+
+    trip.completed = True
+    trip.save()
+
+    return Response({"status": "trip_cancelled"})
+
+
+# ✅ GET SINGLE TRIP DETAILS (useful for debugging + demo)
+@api_view(["GET"])
+def get_trip(request, trip_id):
+
+    try:
+        trip = Trip.objects.get(id=trip_id)
+    except Trip.DoesNotExist:
+        return Response({"error": "Trip not found"})
 
     return Response({
-        "active_trips": active_trips,
-        "completed_trips": completed_trips,
-        "passengers": passengers,
-        "revenue": revenue
+        "id": trip.id,
+        "driver": trip.driver_id,
+        "route": trip.route,
+        "current_index": trip.current_index,
+        "current_node": trip.current_node(),
+        "max_passengers": trip.max_passengers,
+        "current_passengers": trip.current_passengers,
+        "completed": trip.completed
     })

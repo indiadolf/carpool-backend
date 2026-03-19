@@ -7,6 +7,11 @@ def simulate_trips():
     trips = Trip.objects.filter(completed=False)
 
     for trip in trips:
-        move_driver(trip)
 
-        print(f"Trip {trip.id} moved to {trip.current_node}")
+        trip = move_driver(trip)
+
+        node_name = None
+        if trip.current_node:
+            node_name = trip.current_node.name
+
+        print(f"Trip {trip.id} moved to {node_name}")

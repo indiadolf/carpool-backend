@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Driver Leaderboard</title>
+
+<style>
+
+body{
+    font-family: Arial;
+    background:#f4f6f8;
+    margin:40px;
+}
+
+h1{
+    margin-bottom:30px;
+}
+
+table{
+    border-collapse: collapse;
+    width:500px;
+    background:white;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+th, td{
+    padding:12px;
+    text-align:center;
+}
+
+th{
+    background:#0074D9;
+    color:white;
+}
+
+tr:nth-child(even){
+    background:#f2f2f2;
+}
+
+.rank1{
+    color:gold;
+    font-weight:bold;
+}
+
+.rank2{
+    color:silver;
+    font-weight:bold;
+}
+
+.rank3{
+    color:#cd7f32;
+    font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>🏆 Top Earning Drivers</h1>
+
+<table>
+
+<tr>
+<th>Rank</th>
+<th>Driver</th>
+<th>Total Earnings</th>
+</tr>
+
+{% for d in leaders %}
+
+<tr>
+<td>{{ forloop.counter }}</td>
+<td>{{ d.wallet__user__username }}</td>
+<td>₹ {{ d.total_earnings }}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</body>
+
+</html>

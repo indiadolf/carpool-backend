@@ -1,31 +1,54 @@
 from .models import Trip
 from network.models import Node
+from routing.utils import shortest_path
+
+
+def initialize_trip_route(trip):
+
+    try:
+        start = trip.start_node
+        end = trip.end_node
+
+        route = shortest_path(start, end)
+
+        if route:
+            trip.route = route
+            trip.route_index = 0
+
+            # set current node
+            trip.current_node = start
+
+            trip.save()
+
+    except Exception:
+        pass
+
+    return trip
 
 
 def move_driver(trip):
 
-    route = trip.route
+    if not trip.route or trip.completed:
+        return trip
 
-    # Trip already finished
-    if trip.completed:
-        return None
-
-    # End reached
-    if trip.route_index >= len(route) - 1:
+    # reached end
+    if trip.route_index >= len(trip.route) - 1:
         trip.completed = True
         trip.save()
         return trip
 
-    # Move forward
+    # move forward
     trip.route_index += 1
 
-    next_node_name = route[trip.route_index]
+    next_node_name = trip.route[trip.route_index]
 
-    node = Node.objects.get(name=next_node_name)
+    try:
+        node = Node.objects.get(name=next_node_name)
+        trip.current_node = node
+    except Node.DoesNotExist:
+        pass
 
-    trip.current_node = node
-
-    # trip starts when first move happens
+    # mark started
     if trip.route_index > 0:
         trip.started = True
 

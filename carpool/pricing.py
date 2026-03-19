@@ -9,23 +9,27 @@ def get_surge_multiplier():
 
     active_requests = CarpoolRequest.objects.count()
 
-    active_trips = Trip.objects.filter(completed=False).count()
+    # 🔥 FIX: safer trip count
+    active_trips = Trip.objects.filter(active=True).count()
 
+    # no drivers → max surge
     if active_trips == 0:
         return 2
 
-    ratio = active_requests / active_trips
+    ratio = active_requests / max(active_trips, 1)
 
+    # smoother scaling
     if ratio < 1:
         return 1
 
-    if ratio < 2:
+    elif ratio < 2:
+        return 1.25
+
+    elif ratio < 3:
         return 1.5
 
-    if ratio < 3:
+    else:
         return 2
-
-    return 3
 
 
 def calculate_fare(distance, passengers):
@@ -36,7 +40,10 @@ def calculate_fare(distance, passengers):
 
     price = base_price * surge
 
-    # split among passengers
+    # safety
+    passengers = max(passengers, 1)
+
+    # split fare
     price = price / passengers
 
     return round(price, 2)
