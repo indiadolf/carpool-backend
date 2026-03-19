@@ -6,7 +6,7 @@ from users.models import User
 from network.models import Node
 
 
-# ✅ CREATE TRIP
+
 @api_view(["POST"])
 def create_trip(request):
     try:
@@ -14,7 +14,7 @@ def create_trip(request):
         start = Node.objects.get(id=request.data.get("start_node"))
         end = Node.objects.get(id=request.data.get("end_node"))
 
-        # simple route (start → end)
+        
         route = [start.id, end.id]
 
         trip = Trip.objects.create(
@@ -38,7 +38,7 @@ def create_trip(request):
         return Response({"error": str(e)})
 
 
-# ✅ UPDATE DRIVER LOCATION (progress on route)
+
 @api_view(["POST"])
 def update_location(request, trip_id):
     try:
@@ -58,7 +58,7 @@ def update_location(request, trip_id):
         return Response({"error": str(e)})
 
 
-# ✅ VIEW ALL TRIPS (PS requirement)
+
 @api_view(["GET"])
 def get_trips(request):
 
@@ -67,7 +67,7 @@ def get_trips(request):
     return Response(list(trips))
 
 
-# ✅ CANCEL TRIP (PS requirement)
+
 @api_view(["POST"])
 def cancel_trip(request, trip_id):
 
@@ -82,7 +82,7 @@ def cancel_trip(request, trip_id):
     return Response({"status": "trip_cancelled"})
 
 
-# ✅ GET SINGLE TRIP DETAILS (useful for debugging + demo)
+
 @api_view(["GET"])
 def get_trip(request, trip_id):
 
