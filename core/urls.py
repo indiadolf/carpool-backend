@@ -6,7 +6,7 @@ from trips.views import create_trip
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # 🔥 YOUR APIs
+  
     path('create_trip/', create_trip),
     path('create_request/', create_request),
     path('offers/', get_offers),
