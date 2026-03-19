@@ -8,10 +8,10 @@ class Trip(models.Model):
     start_node = models.ForeignKey(Node, on_delete=models.CASCADE, related_name="trip_start")
     end_node = models.ForeignKey(Node, on_delete=models.CASCADE, related_name="trip_end")
 
-    # FULL ROUTE (ordered list of node IDs)
+
     route = models.JSONField(default=list)
 
-    # TRACK PROGRESS
+
     current_index = models.IntegerField(default=0)
 
     max_passengers = models.IntegerField(default=3)
