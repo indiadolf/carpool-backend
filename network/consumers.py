@@ -20,7 +20,7 @@ class GraphConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
-    # 🔥 ONLY RECEIVE FROM BACKEND (NOT CLIENT)
+ 
     async def graph_update(self, event):
         await self.send(
             text_data=json.dumps(event["message"])
