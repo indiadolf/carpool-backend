@@ -13,7 +13,7 @@ def move_drivers():
         if trip.route_index < len(trip.route) - 1:
             trip.route_index += 1
         else:
-            # 🔥 stop at destination instead of looping (PS-like)
+         
             trip.route_index = len(trip.route) - 1
 
         trip.save()
