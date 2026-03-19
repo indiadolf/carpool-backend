@@ -11,14 +11,14 @@ def rebalance_drivers():
     if not requests:
         return
 
-    # 🔥 demand count
+
     demand = {}
 
     for r in requests:
         node = r.pickup_node.name
         demand[node] = demand.get(node, 0) + 1
 
-    # 🔥 pick highest demand node
+
     target_name = max(demand, key=demand.get)
 
     try:
